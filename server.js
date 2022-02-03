@@ -4,7 +4,7 @@ const { animals } = require('./data/animals.json');
 
 const express = require('express');
 
-// Set the envirenment varibale to run Heroku with no erroe so default to port 80 for HTTP or 443 is the host is HTTPS
+// Set the environment varibale to run Heroku with no error so default to port 80 for HTTP or 443 is the host is HTTPS
 const PORT = process.env.PORT || 3001;
 // To set up the server, we follow 2 steps
 // 1. Assign express() to the app variable :
@@ -50,15 +50,30 @@ function filterByQuery(query, animalsArray) {
     return filteredResults;
   }
   
-
+  function findById(id, animalsArray) {
+    const result = animalsArray.filter(animal => animal.id === id)[0];
+    return result;
+  }
 
 // 2. To add route so that front-end can request data from
 app.get('/api/animals', (req, res) => {
     let results = animals;
     if (req.query) {
+        // req.query is multifaceted, often combining multiple parameters
       results = filterByQuery(req.query, results);
     }
     res.json(results);
+  });
+
+  //Create a new GET route for animals, after the first one, this time adding :id to the end of the route
+  app.get('/api/animals/:id', (req, res) => {
+      // req.param is specific to a single property, often intended to retrieve a single record.
+      const result = findById(req.params.id, animals);
+      if (result){
+        res.json(result);
+      }else{
+          res.send(404);
+      }
   });
 
 // 2. Make our server listen by Chaining the listen() method onto the server:
